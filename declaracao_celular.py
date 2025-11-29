@@ -86,7 +86,7 @@ def gerar_pdf_nativo(dados):
         f"residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai "
         f"CEP: 26556-240, declaro para devidos fins de comprovacao de residencia que "
         f"{dados['nome']}, RG: {dados['rg']} e CPF: {dados['cpf']}, reside no endereco: "
-        f"{dados['rua']}, {dados['numero']}{texto_complemento} - {dados['bairro']} - {dados['cidade']}, "
+        f"{dados['rua']}, {dados['numero']}{texto_complemento} , {dados['bairro']} , {dados['cidade']}, "
         f"RJ, CEP: {dados['cep']}."
     )
     
