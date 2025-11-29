@@ -57,7 +57,7 @@ class PDF(FPDF):
 
 def gerar_pdf_nativo(dados):
     pdf = PDF()
-    pdf.set_margins(25, 25, 25) # Margens maiores para ficar elegante
+    pdf.set_margins(25, 25, 25)
     pdf.add_page()
     
     # Título
@@ -65,10 +65,10 @@ def gerar_pdf_nativo(dados):
     pdf.cell(0, 10, 'DECLARACAO', 0, 1, 'C')
     pdf.ln(10)
 
-    # --- AQUI ESTÁ A MÁGICA DO TEXTO CORRIDO ---
+    # Texto do Corpo
     pdf.set_font('Arial', '', 12)
     
-    # Texto montado em um bloco único
+    # Texto montado (sem forçar maiúsculas)
     texto_completo = (
         f"Eu, Paulo Cesar de Souza, brasileiro, identidade 09.013.043-6 e CPF 016.015.967-90, "
         f"residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai "
@@ -78,20 +78,20 @@ def gerar_pdf_nativo(dados):
         f"RJ, CEP: {dados['cep']}."
     )
     
-    # align='J' força o texto a ficar JUSTIFICADO (quadradinho)
+    # align='J' para justificar
     pdf.multi_cell(0, 8, texto_completo, align='J')
     
     pdf.ln(20)
 
-    # Data alinhada à direita
-    pdf.cell(0, 10, f"Mesquita, {dados['dia']} de {dados['mes']} de {dados['ano']}", 0, 1, 'R')
+    # Data alinhada à ESQUERDA ('L')
+    pdf.cell(0, 10, f"Mesquita, {dados['dia']} de {dados['mes']} de {dados['ano']}", 0, 1, 'L')
     
     pdf.ln(30)
     
-    # Assinatura centralizada
+    # Assinatura (Presidente)
     pdf.cell(0, 5, "___________________________________________", 0, 1, 'C')
     pdf.cell(0, 5, "Paulo Cesar de Souza", 0, 1, 'C')
-    pdf.cell(0, 5, "1o Secretario", 0, 1, 'C')
+    pdf.cell(0, 5, "Presidente", 0, 1, 'C') # <-- Alterado aqui
 
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
@@ -123,14 +123,15 @@ if enviar:
                  7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
         hoje = datetime.now()
         
+        # Dados brutos (sem .upper) para respeitar o que você digitou
         dados = {
-            'nome': nome.upper(),
+            'nome': nome.strip(),
             'rg': formatar_rg(rg),
             'cpf': formatar_cpf(cpf),
-            'rua': rua.upper(),
-            'numero': num,
-            'bairro': bairro.upper(),
-            'cidade': cid.upper(),
+            'rua': rua.strip(),
+            'numero': num.strip(),
+            'bairro': bairro.strip(),
+            'cidade': cid.strip(),
             'cep': formatar_cep(cep),
             'dia': hoje.strftime("%d"),
             'mes': meses[hoje.month],
@@ -141,7 +142,7 @@ if enviar:
         
         st.success("✅ PDF Gerado!")
         st.download_button(
-            label="⬇️ BAIXAR PDF CORRIGIDO",
+            label="⬇️ BAIXAR PDF FINAL",
             data=arquivo_pdf,
             file_name=f"Declaracao_{nome.replace(' ', '_')}.pdf",
             mime="application/pdf"
