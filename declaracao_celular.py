@@ -35,6 +35,18 @@ def formatar_cep(valor):
     if len(v) == 8: return f"{v[:2]}.{v[2:5]}-{v[5:]}"
     return valor
 
+def limpar_texto(texto):
+    """
+    Remove caracteres que não existem no padrão Latin-1 (como emojis)
+    para evitar que o PDF trave na hora de gerar.
+    """
+    if not texto: return ""
+    try:
+        # Tenta manter o texto original
+        return texto.encode('latin-1', 'replace').decode('latin-1')
+    except:
+        return texto
+
 # --- CLASSE PARA CRIAR O PDF ---
 class PDF(FPDF):
     def header(self):
@@ -50,7 +62,7 @@ class PDF(FPDF):
         self.cell(0, 6, 'A.M.A', 0, 1, 'C')
         
         self.set_font('Arial', '', 8)
-        self.cell(0, 4, 'ASSOCIACAO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
+        self.cell(0, 4, 'ASSOCIAÇÃO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
         self.cell(0, 4, 'TRAVESSA TULIPA, 01 - ALTO URUGUAI', 0, 1, 'C')
         self.cell(0, 4, 'CEP: 26556-190  CNPJ: 30.193.254/0001-34', 0, 1, 'C')
         
@@ -70,26 +82,29 @@ def gerar_pdf_nativo(dados):
     
     # Título
     pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 10, 'DECLARACAO', 0, 1, 'C')
+    pdf.cell(0, 10, 'DECLARAÇÃO', 0, 1, 'C')
     pdf.ln(10)
 
     # Texto Justificado
     pdf.set_font('Arial', '', 12)
     
-    # Lógica do Complemento: Se tiver, adiciona o traço. Se não tiver, fica vazio.
+    # Lógica do Complemento
     texto_complemento = ""
     if dados['complemento']:
         texto_complemento = f" - {dados['complemento']}"
 
+    # O uso da função limpar_texto() garante que ç e ~ funcionem e emojis não travem
     texto_completo = (
         f"Eu, Paulo Cesar de Souza, brasileiro, identidade 09.013.043-6 e CPF 016.015.967-90, "
         f"residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai "
-        f"CEP: 26556-240, declaro para devidos fins de comprovacao de residencia que "
-        f"{dados['nome']}, RG: {dados['rg']} e CPF: {dados['cpf']}, reside no endereco: "
-        f"{dados['rua']}, {dados['numero']}{texto_complemento}, {dados['bairro']}, {dados['cidade']}, "
+        f"CEP: 26556-240, declaro para devidos fins de comprovação de residencia que "
+        f"{limpar_texto(dados['nome'])}, RG: {dados['rg']} e CPF: {dados['cpf']}, reside no endereço: "
+        f"{limpar_texto(dados['rua'])}, {dados['numero']}{limpar_texto(texto_complemento)} - "
+        f"{limpar_texto(dados['bairro'])} - {limpar_texto(dados['cidade'])}, "
         f"RJ, CEP: {dados['cep']}."
     )
     
+    # align='J' faz o texto ficar JUSTIFICADO
     pdf.multi_cell(0, 8, texto_completo, align='J')
     pdf.ln(20)
 
@@ -115,12 +130,10 @@ with st.form("form_pdf"):
     
     rua = st.text_input("Endereço (Rua)")
     
-    # --- NOVO LAYOUT DE ENDEREÇO (3 Colunas) ---
-    c3, c4, c5 = st.columns([1, 2, 2]) # O 1, 2, 2 define a largura proporcional
+    c3, c4, c5 = st.columns([1, 2, 2])
     with c3:
         num = st.text_input("Número")
     with c4:
-        # Novo campo de Complemento
         comp = st.text_input("Complemento (só preencha se houver)")
     with c5:
         bairro = st.text_input("Bairro")
@@ -139,13 +152,14 @@ if enviar:
                  7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
         hoje = datetime.now()
         
+        # Dados brutos (sem .upper)
         dados = {
             'nome': nome.strip(),
             'rg': formatar_rg(rg),
             'cpf': formatar_cpf(cpf),
             'rua': rua.strip(),
             'numero': num.strip(),
-            'complemento': comp.strip(), # Novo dado
+            'complemento': comp.strip(),
             'bairro': bairro.strip(),
             'cidade': cid.strip(),
             'cep': formatar_cep(cep),
