@@ -47,7 +47,7 @@ class PDF(FPDF):
 
         # Texto do Cabeçalho
         self.set_font('Arial', 'B', 14)
-        self.cell(0, 6, 'A.M.A', 0, 1, 'C')  # <--- ALTERADO AQUI
+        self.cell(0, 6, 'A.M.A', 0, 1, 'C')
         
         self.set_font('Arial', '', 8)
         self.cell(0, 4, 'ASSOCIACAO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
@@ -76,12 +76,17 @@ def gerar_pdf_nativo(dados):
     # Texto Justificado
     pdf.set_font('Arial', '', 12)
     
+    # Lógica do Complemento: Se tiver, adiciona o traço. Se não tiver, fica vazio.
+    texto_complemento = ""
+    if dados['complemento']:
+        texto_complemento = f" - {dados['complemento']}"
+
     texto_completo = (
         f"Eu, Paulo Cesar de Souza, brasileiro, identidade 09.013.043-6 e CPF 016.015.967-90, "
         f"residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai "
         f"CEP: 26556-240, declaro para devidos fins de comprovacao de residencia que "
         f"{dados['nome']}, RG: {dados['rg']} e CPF: {dados['cpf']}, reside no endereco: "
-        f"{dados['rua']}, {dados['numero']} - {dados['bairro']} - {dados['cidade']}, "
+        f"{dados['rua']}, {dados['numero']}{texto_complemento} - {dados['bairro']} - {dados['cidade']}, "
         f"RJ, CEP: {dados['cep']}."
     )
     
@@ -109,9 +114,16 @@ with st.form("form_pdf"):
     cpf = c2.text_input("CPF (só números)")
     
     rua = st.text_input("Endereço (Rua)")
-    c3, c4 = st.columns(2)
-    num = c3.text_input("Número")
-    bairro = c4.text_input("Bairro")
+    
+    # --- NOVO LAYOUT DE ENDEREÇO (3 Colunas) ---
+    c3, c4, c5 = st.columns([1, 2, 2]) # O 1, 2, 2 define a largura proporcional
+    with c3:
+        num = st.text_input("Número")
+    with c4:
+        # Novo campo de Complemento
+        comp = st.text_input("Complemento (só preencha se houver)")
+    with c5:
+        bairro = st.text_input("Bairro")
     
     c5, c6 = st.columns(2)
     cid = c5.text_input("Cidade")
@@ -133,6 +145,7 @@ if enviar:
             'cpf': formatar_cpf(cpf),
             'rua': rua.strip(),
             'numero': num.strip(),
+            'complemento': comp.strip(), # Novo dado
             'bairro': bairro.strip(),
             'cidade': cid.strip(),
             'cep': formatar_cep(cep),
