@@ -38,10 +38,8 @@ def formatar_cep(valor):
 # --- CLASSE PARA CRIAR O PDF ---
 class PDF(FPDF):
     def header(self):
-        # --- LOGO (logoalto.jpg) ---
-        # ATENÇÃO: O nome do arquivo no GitHub deve ser exatamente 'logoalto.jpg' (tudo minúsculo)
+        # --- LOGO ---
         if os.path.exists("logoalto.jpg"):
-            # x=80 (centralizado), y=5 (topo), w=50 (largura)
             self.image("logoalto.jpg", x=80, y=5, w=50)
             self.ln(25) 
         else:
@@ -49,7 +47,7 @@ class PDF(FPDF):
 
         # Texto do Cabeçalho
         self.set_font('Arial', 'B', 14)
-        self.cell(0, 6, 'ALTO URUGUAI', 0, 1, 'C')
+        self.cell(0, 6, 'A.M.A', 0, 1, 'C')  # <--- ALTERADO AQUI
         
         self.set_font('Arial', '', 8)
         self.cell(0, 4, 'ASSOCIACAO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
@@ -57,7 +55,6 @@ class PDF(FPDF):
         self.cell(0, 4, 'CEP: 26556-190  CNPJ: 30.193.254/0001-34', 0, 1, 'C')
         
         self.ln(5)
-        # Linha separadora
         self.line(10, self.get_y(), 200, self.get_y()) 
         self.ln(10)
 
@@ -76,7 +73,7 @@ def gerar_pdf_nativo(dados):
     pdf.cell(0, 10, 'DECLARACAO', 0, 1, 'C')
     pdf.ln(10)
 
-    # Texto Justificado e Corrido
+    # Texto Justificado
     pdf.set_font('Arial', '', 12)
     
     texto_completo = (
