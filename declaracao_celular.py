@@ -64,7 +64,7 @@ class PDF(FPDF):
         self.cell(0, 6, 'A.M.A', 0, 1, 'C')
         
         self.set_font('Arial', '', 8)
-        self.cell(0, 4, 'ASSOCIACAO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
+        self.cell(0, 4, 'ASSOCIAÇÃO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
         self.cell(0, 4, 'TRAVESSA TULIPA, 01 - ALTO URUGUAI', 0, 1, 'C')
         self.cell(0, 4, 'CEP: 26556-190  CNPJ: 30.193.254/0001-34', 0, 1, 'C')
         
@@ -84,7 +84,7 @@ def gerar_pdf_nativo(dados):
     
     # Título
     pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 10, 'DECLARACAO', 0, 1, 'C')
+    pdf.cell(0, 10, 'DECLARAÇÃO', 0, 1, 'C')
     pdf.ln(10)
 
     # Texto Justificado
@@ -97,8 +97,8 @@ def gerar_pdf_nativo(dados):
     texto_completo = (
         f"Eu, Paulo Cesar de Souza, brasileiro, identidade 09.013.043-6 e CPF 016.015.967-90, "
         f"residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai "
-        f"CEP: 26556-240, declaro para devidos fins de comprovacao de residencia que "
-        f"{limpar_texto(dados['nome'])}, RG: {dados['rg']} e CPF: {dados['cpf']}, reside no endereco: "
+        f"CEP: 26556-240, declaro para devidos fins de comprovação de residência que "
+        f"{limpar_texto(dados['nome'])}, RG: {dados['rg']} e CPF: {dados['cpf']}, reside no endereço: "
         f"{limpar_texto(dados['rua'])}, {dados['numero']}{limpar_texto(texto_complemento)} - "
         f"{limpar_texto(dados['bairro'])} - {limpar_texto(dados['cidade'])}, "
         f"RJ, CEP: {dados['cep']}."
