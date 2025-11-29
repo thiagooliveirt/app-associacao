@@ -37,72 +37,63 @@ def formatar_cep(valor):
 # --- CLASSE PARA CRIAR O PDF ---
 class PDF(FPDF):
     def header(self):
-        # Cabeçalho do PDF
+        # Cabeçalho
         self.set_font('Arial', 'B', 14)
-        self.cell(0, 10, 'ALTO URUGUAI', 0, 1, 'C')
-        self.set_font('Arial', '', 10)
-        self.cell(0, 5, 'ASSOCIACAO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
-        self.cell(0, 5, 'TRAVESSA TULIPA, 01 - ALTO URUGUAI', 0, 1, 'C')
-        self.cell(0, 5, 'CEP: 26556-190  CNPJ: 30.193.254/0001-34', 0, 1, 'C')
-        self.ln(20) # Pula linha
+        self.cell(0, 6, 'ALTO URUGUAI', 0, 1, 'C')
+        
+        self.set_font('Arial', '', 8)
+        self.cell(0, 4, 'ASSOCIACAO DE MORADORES E AMIGOS DO ALTO URUGUAI - MESQUITA', 0, 1, 'C')
+        self.cell(0, 4, 'TRAVESSA TULIPA, 01 - ALTO URUGUAI', 0, 1, 'C')
+        self.cell(0, 4, 'CEP: 26556-190  CNPJ: 30.193.254/0001-34', 0, 1, 'C')
+        
+        self.ln(5)
+        self.line(10, 30, 200, 30) 
+        self.ln(10)
 
     def footer(self):
-        # Rodapé
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, 'Documento gerado eletronicamente', 0, 0, 'C')
+        self.cell(0, 10, 'Documento gerado digitalmente', 0, 0, 'C')
 
 def gerar_pdf_nativo(dados):
     pdf = PDF()
+    pdf.set_margins(25, 25, 25) # Margens maiores para ficar elegante
     pdf.add_page()
     
     # Título
-    pdf.set_font('Arial', 'B', 16)
+    pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 10, 'DECLARACAO', 0, 1, 'C')
     pdf.ln(10)
 
-    # Texto do Corpo
+    # --- AQUI ESTÁ A MÁGICA DO TEXTO CORRIDO ---
     pdf.set_font('Arial', '', 12)
     
-    # Texto fixo do Paulo Cesar (Secretário)
-    texto_inicio = (
-        "Eu, Paulo Cesar de Souza, brasileiro, identidade 09.013.043-6 e CPF 016.015.967-90, "
-        "residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai, "
-        "CEP: 26556-240, declaro para devidos fins de comprovacao de residencia que:"
+    # Texto montado em um bloco único
+    texto_completo = (
+        f"Eu, Paulo Cesar de Souza, brasileiro, identidade 09.013.043-6 e CPF 016.015.967-90, "
+        f"residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai "
+        f"CEP: 26556-240, declaro para devidos fins de comprovacao de residencia que "
+        f"{dados['nome']}, RG: {dados['rg']} e CPF: {dados['cpf']}, reside no endereco: "
+        f"{dados['rua']}, {dados['numero']} - {dados['bairro']} - {dados['cidade']}, "
+        f"RJ, CEP: {dados['cep']}."
     )
-    # Nota: Em PDF via código, evitamos acentos diretos (ç, ã) se não configurarmos fontes externas.
-    # Por segurança, usei "comprovacao" e "declaracao" sem til/cedilha para garantir que não dê erro no servidor.
     
-    pdf.multi_cell(0, 8, texto_inicio)
-    pdf.ln(5)
-
-    # Dados do Morador (Em Negrito)
-    pdf.set_font('Arial', 'B', 12)
-    dados_morador = (
-        f"NOME: {dados['nome']}\n"
-        f"RG: {dados['rg']}   CPF: {dados['cpf']}\n"
-        f"ENDERECO: {dados['rua']}, {dados['numero']} - {dados['bairro']}\n"
-        f"CIDADE: {dados['cidade']} - CEP: {dados['cep']}"
-    )
-    pdf.multi_cell(0, 8, dados_morador)
-    pdf.ln(5)
+    # align='J' força o texto a ficar JUSTIFICADO (quadradinho)
+    pdf.multi_cell(0, 8, texto_completo, align='J')
     
-    # Conclusão
-    pdf.set_font('Arial', '', 12)
-    pdf.multi_cell(0, 8, "Reside no endereco citado acima.")
     pdf.ln(20)
 
-    # Data
+    # Data alinhada à direita
     pdf.cell(0, 10, f"Mesquita, {dados['dia']} de {dados['mes']} de {dados['ano']}", 0, 1, 'R')
+    
     pdf.ln(30)
-
-    # Assinatura
+    
+    # Assinatura centralizada
     pdf.cell(0, 5, "___________________________________________", 0, 1, 'C')
     pdf.cell(0, 5, "Paulo Cesar de Souza", 0, 1, 'C')
     pdf.cell(0, 5, "1o Secretario", 0, 1, 'C')
 
-    # Retorna o PDF como string binária
-    return pdf.output(dest='S').encode('latin-1')
+    return pdf.output(dest='S').encode('latin-1', 'replace')
 
 # --- INTERFACE WEB ---
 st.markdown("<h3 style='text-align: center; color: #ff6b6b;'>EMISSÃO - ALTO URUGUAI</h3>", unsafe_allow_html=True)
@@ -150,7 +141,7 @@ if enviar:
         
         st.success("✅ PDF Gerado!")
         st.download_button(
-            label="⬇️ CLIQUE AQUI PARA BAIXAR O PDF",
+            label="⬇️ BAIXAR PDF CORRIGIDO",
             data=arquivo_pdf,
             file_name=f"Declaracao_{nome.replace(' ', '_')}.pdf",
             mime="application/pdf"
