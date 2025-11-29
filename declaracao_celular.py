@@ -2,6 +2,7 @@ import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
 import re
+import os
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Associação Alto Uruguai", page_icon="📄", layout="centered")
@@ -37,7 +38,16 @@ def formatar_cep(valor):
 # --- CLASSE PARA CRIAR O PDF ---
 class PDF(FPDF):
     def header(self):
-        # Cabeçalho
+        # --- LOGO (logoalto.jpeg) ---
+        # Verifica se o arquivo existe para não travar se você esquecer de subir
+        if os.path.exists("logoalto.jpeg"):
+            # x=80 (centralizado horizontalmente), y=10 (topo), w=50 (largura)
+            self.image("logoalto.jpeg", x=80, y=5, w=50)
+            self.ln(25) # Espaço que a logo ocupa
+        else:
+            self.ln(10)
+
+        # Texto do Cabeçalho
         self.set_font('Arial', 'B', 14)
         self.cell(0, 6, 'ALTO URUGUAI', 0, 1, 'C')
         
@@ -47,7 +57,8 @@ class PDF(FPDF):
         self.cell(0, 4, 'CEP: 26556-190  CNPJ: 30.193.254/0001-34', 0, 1, 'C')
         
         self.ln(5)
-        self.line(10, 30, 200, 30) 
+        # Linha separadora (ajuste o '55' se a linha ficar em cima do texto)
+        self.line(10, self.get_y(), 200, self.get_y()) 
         self.ln(10)
 
     def footer(self):
@@ -65,10 +76,9 @@ def gerar_pdf_nativo(dados):
     pdf.cell(0, 10, 'DECLARACAO', 0, 1, 'C')
     pdf.ln(10)
 
-    # Texto do Corpo
+    # Texto Justificado e Corrido
     pdf.set_font('Arial', '', 12)
     
-    # Texto montado (sem forçar maiúsculas)
     texto_completo = (
         f"Eu, Paulo Cesar de Souza, brasileiro, identidade 09.013.043-6 e CPF 016.015.967-90, "
         f"residente e domiciliado nesta cidade de Mesquita: Rua Jutai, 52 - Alto Uruguai "
@@ -78,20 +88,17 @@ def gerar_pdf_nativo(dados):
         f"RJ, CEP: {dados['cep']}."
     )
     
-    # align='J' para justificar
     pdf.multi_cell(0, 8, texto_completo, align='J')
-    
     pdf.ln(20)
 
-    # Data alinhada à ESQUERDA ('L')
+    # Data à esquerda
     pdf.cell(0, 10, f"Mesquita, {dados['dia']} de {dados['mes']} de {dados['ano']}", 0, 1, 'L')
-    
     pdf.ln(30)
     
-    # Assinatura (Presidente)
+    # Assinatura
     pdf.cell(0, 5, "___________________________________________", 0, 1, 'C')
     pdf.cell(0, 5, "Paulo Cesar de Souza", 0, 1, 'C')
-    pdf.cell(0, 5, "Presidente", 0, 1, 'C') # <-- Alterado aqui
+    pdf.cell(0, 5, "Presidente", 0, 1, 'C')
 
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
@@ -123,7 +130,6 @@ if enviar:
                  7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'}
         hoje = datetime.now()
         
-        # Dados brutos (sem .upper) para respeitar o que você digitou
         dados = {
             'nome': nome.strip(),
             'rg': formatar_rg(rg),
@@ -142,7 +148,7 @@ if enviar:
         
         st.success("✅ PDF Gerado!")
         st.download_button(
-            label="⬇️ BAIXAR PDF FINAL",
+            label="⬇️ BAIXAR PDF",
             data=arquivo_pdf,
             file_name=f"Declaracao_{nome.replace(' ', '_')}.pdf",
             mime="application/pdf"
