@@ -38,12 +38,12 @@ def formatar_cep(valor):
 # --- CLASSE PARA CRIAR O PDF ---
 class PDF(FPDF):
     def header(self):
-        # --- LOGO (logoalto.jpeg) ---
-        # Verifica se o arquivo existe para não travar se você esquecer de subir
-        if os.path.exists("logoalto.jpeg"):
-            # x=80 (centralizado horizontalmente), y=10 (topo), w=50 (largura)
-            self.image("logoalto.jpeg", x=80, y=5, w=50)
-            self.ln(25) # Espaço que a logo ocupa
+        # --- LOGO (logoalto.jpg) ---
+        # ATENÇÃO: O nome do arquivo no GitHub deve ser exatamente 'logoalto.jpg' (tudo minúsculo)
+        if os.path.exists("logoalto.jpg"):
+            # x=80 (centralizado), y=5 (topo), w=50 (largura)
+            self.image("logoalto.jpg", x=80, y=5, w=50)
+            self.ln(25) 
         else:
             self.ln(10)
 
@@ -57,7 +57,7 @@ class PDF(FPDF):
         self.cell(0, 4, 'CEP: 26556-190  CNPJ: 30.193.254/0001-34', 0, 1, 'C')
         
         self.ln(5)
-        # Linha separadora (ajuste o '55' se a linha ficar em cima do texto)
+        # Linha separadora
         self.line(10, self.get_y(), 200, self.get_y()) 
         self.ln(10)
 
