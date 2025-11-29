@@ -120,7 +120,7 @@ def gerar_pdf_nativo(dados):
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
 # --- INTERFACE WEB ---
-st.markdown("<h3 style='text-align: center; color: #ff6b6b;'>EMISSÃO - ALTO URUGUAI</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center; color: #ff6b6b;'>EMISSÃO DE DECLARAÇÃO</h3>", unsafe_allow_html=True)
 
 with st.form("form_pdf"):
     nome = st.text_input("Nome Completo")
